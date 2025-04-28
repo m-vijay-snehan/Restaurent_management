@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Order - Restaurant Management</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 550px;
+      background-color: white;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #444;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #0069d9;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0053b3;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: none;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background-color: #673ab7;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #512da8;
+    }
+
+    .menu-items {
+      margin-top: 20px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .menu-item select,
+    .menu-item input {
+      width: auto;
+      margin-right: 10px;
+    }
+
+    .add-item {
+      margin-top: 10px;
+      background-color: #28a745;
+    }
+
+    .add-item:hover {
+      background-color: #218838;
+    }
+
+    .remove-item {
+      background-color: #dc3545;
+      padding: 5px 10px;
+      margin-left: 10px;
+    }
+
+    .remove-item:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Add Order</h2>
+    <form id="orderForm">
+      <label for="customer_id">Customer ID</label>
+      <input type="number" id="customer_id" name="customer_id" required>
+
+      <label for="table_id">Select Table</label>
+      <select id="table_id" name="table_id" required>
+        <option value="">Select a table</option>
+      </select>
+
+      <div class="menu-items" id="menuItems">
+        <h3>Menu Items</h3>
+        <div class="menu-item">
+          <select class="menu-item-select" required>
+            <option value="">Select Menu Item</option>
+          </select>
+          <input type="number" class="menu-item-quantity" min="1" value="1" required>
+          <button type="button" class="remove-item">×</button>
+        </div>
+      </div>
+
+      <button type="button" class="add-item">Add Menu Item</button>
+      <button type="submit">Place Order</button><br><br>
+    </form>
+    <a href="coverpage.html" class="back-button">← Back to Home</a>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    // Load available tables
+    fetch('get_tables.php')
+      .then(response => response.json())
+      .then(data => {
+        const tableSelect = document.getElementById('table_id');
+        data.forEach(table => {
+          const option = document.createElement('option');
+          option.value = table.id;
+          option.textContent = `Table ${table.table_number} (Capacity: ${table.capacity})`;
+          tableSelect.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error('Error loading tables:', error);
+      });
+
+    // Load menu items
+    fetch('get_menu_items.php')
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          console.error('Error loading menu items:', data.message);
+          return;
+        }
+        console.log('Menu items loaded:', data); // Debug log
+        const menuSelects = document.querySelectorAll('.menu-item-select');
+        menuSelects.forEach(select => {
+          data.data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = `${item.name} (${item.category}) - ₹${item.price}`;
+            select.appendChild(option);
+          });
+        });
+      })
+      .catch(error => {
+        console.error('Error loading menu items:', error);
+      });
+
+    // Add menu item button
+    document.querySelector('.add-item').addEventListener('click', function() {
+      const menuItemsDiv = document.getElementById('menuItems');
+      const newItem = document.createElement('div');
+      newItem.className = 'menu-item';
+      newItem.innerHTML = `
+        <select class="menu-item-select" required>
+          <option value="">Select Menu Item</option>
+        </select>
+        <input type="number" class="menu-item-quantity" min="1" value="1" required>
+        <button type="button" class="remove-item">×</button>
+      `;
+      menuItemsDiv.appendChild(newItem);
+
+      // Load menu items for the new select
+      fetch('get_menu_items.php')
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error('Error loading menu items:', data.message);
+            return;
+          }
+          console.log('Menu items loaded for new select:', data); // Debug log
+          const select = newItem.querySelector('.menu-item-select');
+          data.data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = `${item.name} (${item.category}) - ₹${item.price}`;
+            select.appendChild(option);
+          });
+        });
+    });
+
+    // Remove menu item button
+    document.getElementById('menuItems').addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-item')) {
+        if (document.querySelectorAll('.menu-item').length > 1) {
+          e.target.parentElement.remove();
+        }
+      }
+    });
+
+    document.getElementById("orderForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const customer_id = form.customer_id.value;
+      const table_id = form.table_id.value;
+      
+      // Collect menu items
+      const items = [];
+      document.querySelectorAll('.menu-item').forEach(item => {
+        const menu_item_id = item.querySelector('.menu-item-select').value;
+        const quantity = item.querySelector('.menu-item-quantity').value;
+        if (menu_item_id && quantity) {
+          items.push({
+            menu_item_id: parseInt(menu_item_id),
+            quantity: parseInt(quantity)
+          });
+        }
+      });
+
+      if (items.length === 0) {
+        alert('Please add at least one menu item');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('customer_id', customer_id);
+      formData.append('table_id', table_id);
+      formData.append('items', JSON.stringify(items));
+
+      const messageDiv = document.getElementById("message");
+
+      fetch("add_order.php", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        messageDiv.style.display = "block";
+
+        if (data.success) {
+          messageDiv.className = "message success";
+          messageDiv.textContent = data.message;
+          form.reset();
+          // Reset menu items to one empty item
+          const menuItemsDiv = document.getElementById('menuItems');
+          menuItemsDiv.innerHTML = `
+            <h3>Menu Items</h3>
+            <div class="menu-item">
+              <select class="menu-item-select" required>
+                <option value="">Select Menu Item</option>
+              </select>
+              <input type="number" class="menu-item-quantity" min="1" value="1" required>
+              <button type="button" class="remove-item">×</button>
+            </div>
+          `;
+          // Reload menu items for the reset select
+          fetch('get_menu_items.php')
+            .then(response => response.json())
+            .then(data => {
+              const select = document.querySelector('.menu-item-select');
+              data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = `${item.name} - ₹${item.price}`;
+                select.appendChild(option);
+              });
+            });
+        } else {
+          messageDiv.className = "message error";
+          messageDiv.textContent = data.message;
+        }
+      })
+      .catch(error => {
+        messageDiv.className = "message error";
+        messageDiv.style.display = "block";
+        messageDiv.textContent = "Error: " + error;
+      });
+    });
+  </script>
+
+</body>
+</html>

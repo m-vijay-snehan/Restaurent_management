@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Staff - Restaurant Management</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      background-color: white;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: none;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background-color: #673ab7;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #512da8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Add Staff</h2>
+    <form id="staffForm">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" maxlength="100" required>
+
+      <label for="position">Position</label>
+      <input type="text" id="position" name="position" maxlength="50" required>
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" maxlength="20" required>
+
+      <label for="salary">Salary</label>
+      <input type="number" id="salary" name="salary" step="0.01" min="0" required>
+
+      <button type="submit">Add Staff</button><br><br>
+    </form>
+    
+    <a href="coverpage.html" class="back-button">← Back to Home</a>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    document.getElementById("staffForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const formData = new FormData(form);
+      const messageDiv = document.getElementById("message");
+
+      fetch("add_staff.php", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        messageDiv.style.display = "block";
+
+        if (data.success) {
+          messageDiv.className = "message success";
+          messageDiv.textContent = data.message;
+          form.reset();
+        } else {
+          messageDiv.className = "message error";
+          messageDiv.textContent = data.message;
+        }
+      })
+      .catch(error => {
+        messageDiv.className = "message error";
+        messageDiv.style.display = "block";
+        messageDiv.textContent = "Error: " + error;
+      });
+    });
+  </script>
+
+</body>
+</html>

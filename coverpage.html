@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: aliceblue;
+        }
+
+        .cover-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #8B4513, #D2691E, #CD853F);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .nav-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 20px auto;
+            max-width: 600px;
+            display: none;
+        }
+
+        .error-message button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .error-message button:hover {
+            background-color: #c82333;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .button-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cover-container">
+        <header class="header">
+            <h1>Restaurant Management System</h1>
+            <p>Streamline your restaurant operations with our comprehensive management solution. From menu management to order processing, we've got you covered.</p>
+        </header>
+
+        <div class="button-container">
+            <a href="./customer_form.html" class="nav-button" onclick="return checkFile('customer_form.html', 'Customer Management')">Customer Management</a>
+            <a href="./menu_form.html" class="nav-button" onclick="return checkFile('menu_form.html', 'Menu Management')">Menu Management</a>
+            <a href="./order_form.html" class="nav-button" onclick="return checkFile('order_form.html', 'Order Management')">Order Management</a>
+            <a href="./staff_form.html" class="nav-button" onclick="return checkFile('staff_form.html', 'Staff Management')">Staff Management</a>
+            <a href="./table_form.html" class="nav-button" onclick="return checkFile('table_management_form.html', 'Table Management')">Table Management</a>
+            <a href="./payment_form.html" class="nav-button" onclick="return checkFile('payment_form.html', 'Payment Management')">Payment Management</a>
+            <a href="./reservation_form.html" class="nav-button" onclick="return checkFile('reservation_form.html', 'Reservation System')">Reservation System</a>
+            <a href="./feedback_form.html" class="nav-button" onclick="return checkFile('feedback_form.html', 'Customer Feedback')">Customer Feedback</a>
+        </div>
+
+        <div id="errorMessage" class="error-message">
+            <p id="errorText"></p>
+            <button onclick="hideError()">Close</button>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 Restaurant Management System. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        function checkFile(filename, moduleName) {
+            fetch(filename)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('File not found');
+                    }
+                    return true;
+                })
+                .catch(error => {
+                    const errorMessage = document.getElementById('errorText');
+                    errorMessage.innerHTML = `
+                        Error accessing ${moduleName} module.<br>
+                        Please ensure:<br>
+                        1. You are running this through a web server (like XAMPP)<br>
+                        2. The file ${filename} exists in the same directory<br>
+                        3. You have proper permissions to access the file<br>
+                        <br>
+                        Current URL: ${window.location.href}<br>
+                        Expected file: ${filename}
+                    `;
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return false;
+                });
+            return true;
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

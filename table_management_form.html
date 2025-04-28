@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Tables - Hotel Management</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 550px;
+      background-color: white;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #444;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #8e24aa;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #7b1fa2;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: none;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background-color: #673ab7;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #512da8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Add Table</h2>
+    <form id="tableForm">
+      <label for="table_number">Table Number</label>
+      <input type="number" id="table_number" name="table_number" required>
+
+      <label for="capacity">Table Capacity</label>
+      <input type="number" id="capacity" name="capacity" required>
+
+      <label for="status">Status</label>
+      <select id="status" name="status" required>
+        <option value="Available">Available</option>
+        <option value="Occupied">Occupied</option>
+        <option value="Reserved">Reserved</option>
+      </select>
+
+      <label for="reservation_id">Reservation ID (Optional)</label>
+      <input type="number" id="reservation_id" name="reservation_id">
+
+      <button type="submit">Update Table</button><br><br>
+    </form>
+    <a href="coverpage.html" class="back-button">← Back to Home</a>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    document.getElementById("tableForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const formData = new FormData(form);
+
+      fetch("update_table_status.php", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        const messageDiv = document.getElementById("message");
+        messageDiv.style.display = "block";
+
+        if (data.toLowerCase().includes("success")) {
+          messageDiv.className = "message success";
+          messageDiv.textContent = "Table updated successfully!";
+          form.reset();
+        } else {
+          messageDiv.className = "message error";
+          messageDiv.textContent = "Failed to update table.";
+        }
+      })
+      .catch(error => {
+        const messageDiv = document.getElementById("message");
+        messageDiv.className = "message error";
+        messageDiv.style.display = "block";
+        messageDiv.textContent = "Error: " + error;
+      });
+    });
+  </script>
+
+</body>
+</html>
